@@ -29,12 +29,40 @@ def tydenni_prumery(vstupni_data, vystup):
         zapis_tyden.writerow([dat[0], dat[1], a.year, a.month, a.day, round(soucet / (i % 7),4)])
     return()
 
-#def kontrola_dat(vstupni_data):
- #   with open(vstupni_data, encoding = "utf-8") as vstup:
-  #      reader = csv.reader(vstup)
+def kontrola_dat(vstupni_data):
+    with open(vstupni_data, encoding = "utf-8") as vstup:
+        reader = csv.reader(vstup)
+        i = 0
+        chyba = False
+        delka = 0
+        for row in reader:
+            i += i
+            try:
+                if int(row[3]) < 1 or int(row[3]) > 12:
+                    print(f"Chyba v datech, řádek {i}, neplatný měsíc.")
+                    chyba = True
+                if int(row[3]) == 1 or 3 or 5 or 7 or 8 or 10 or 12:
+                    delka = 31
+                elif int(row[3]) == 2 and int(row[2]) % 4 == 0:
+                        delka = 29
+                elif int(row[3]) == 2 and int(row[2]) % 4 != 0:
+                        delka = 28
+                else:
+                    delka = 30
+                if int(row[4]) < 1 or int(row[4]) > delka:
+                    print(f"Chyba v datech, řádek {i}, neplatný den.")
+                    chyba = True
+            except ValueError:
+                print("Chyba ve vstupních datech, den, měsíc či rok v desetinném čísle.")
+                chyba = True
+        if chyba == True:
+            print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
+            exit()
 
 
 
 
+
+kontrola_dat("vstup.csv")
 tydenni_prumery("vstup.csv", "vystup_7dni.csv")
 print("Program úspěšně proběhl.")
