@@ -30,3 +30,7 @@ def tydenni_prumery(vstup, vystup):
     return()
 
 tydenni_prumery("vstup.csv", "vystup_7dni.csv")
+
+
+pokusss
+
