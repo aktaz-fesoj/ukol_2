@@ -7,10 +7,10 @@ def datum_posledni(d,m,r,presah):
     vysledek = datum - presah_dni
     return(vysledek)
 
-def tydenni_prumery(vstup, vystup):
-    with open(vstup, encoding = "utf-8") as tyden_vstup,\
+def tydenni_prumery(vstupni_data, vystup):
+    with open(vstupni_data, encoding = "utf-8") as tyden_vstup,\
         open(vystup, "w", encoding = "utf-8") as tyden_vystup:
-        reader = csv.reader(tyden_vstup, delimiter = ",")
+        reader = csv.reader(tyden_vstup)
         zapis_tyden  = csv.writer(tyden_vystup)
         soucet = 0
         i = 0
@@ -20,17 +20,21 @@ def tydenni_prumery(vstup, vystup):
                 vypis_radek = [row[0], row[1], row[2], row[3], row[4]]
             soucet += float(row[5])
             if i % 7 == 0:
-                vypis_radek.append(soucet/7)
+                vypis_radek.append(round(soucet/7, 4))
                 zapis_tyden.writerow(vypis_radek)
                 soucet = 0
                 vypis_radek.clear
-            dat = [row[4], row[3], row[2]]
-        a = datum_posledni(int(dat[0]), int(dat[1]), int(dat[2]), i % 7)
-        zapis_tyden.writerow([a, soucet / (i % 7)])
+            dat = row
+        a = datum_posledni(int(dat[4]), int(dat[3]), int(dat[2]), i % 7)
+        zapis_tyden.writerow([dat[0], dat[1], a.year, a.month, a.day, round(soucet / (i % 7),4)])
     return()
 
+#def kontrola_dat(vstupni_data):
+ #   with open(vstupni_data, encoding = "utf-8") as vstup:
+  #      reader = csv.reader(vstup)
+
+
+
+
 tydenni_prumery("vstup.csv", "vystup_7dni.csv")
-
-
-pokusss
-
+print("Program úspěšně proběhl.")
