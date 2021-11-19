@@ -3,25 +3,28 @@ import datetime
 
 def OdecetDni(d,m,r,presah):
     """Vrací datum formátu datetime, které nastalo před "presah" dnů od data "d.m.r".
-    Parameters:
+
+        Parameters:
                     d (int): Den z data od kterého bude odečítáno
                     m (int): Měsíc z data od kterého bude odečítáno
                     r (int): Rok z data od kterého bude odečítáno
                     presah(int): Počet dní o které se bude datum posouvat zpět
-            Returns:
-                    vysledek (): Binary string of the sum of a and b
+        Returns:
+                    vysledek(date): Výsledné datum ve formátu datetime.date, lze z něj volat day, month, year
     """
-
     datum = datetime.date(r, m, d)
     presah_dni = datetime.timedelta(presah-1)
     vysledek = datum - presah_dni
     return(vysledek)
 
 def PlatneCislice(a, pocet_platnych):
-    """Vrací číslo zaokrouhlené na daný počet platných číslic
+    """Vrací číslo zaokrouhlené na daný počet platných číslic za desetinnou čárkou
 
-    Keyword arguments:
-    a -- 
+        Parameters:
+                    a (float): Číslo, které bude upraveno
+                    pocet_platnych(int): Počet požadovaných platných číslic za desetinnou čárkou
+        Returns:
+                    vys(float): číslo zaokrouhlené na daný počet platných číslic za desetinnou čárkou
     """
     a = round(a, pocet_platnych)
     vys = "{:.4f}".format(a)
@@ -29,6 +32,14 @@ def PlatneCislice(a, pocet_platnych):
     
 
 def TydenniPrumery(vstupni_data, vystup):
+    """Funkce zpracovává vstupní csv soubor s daty o denních průtocích a vrací nový csv soubor, ve kterém \
+    jsou uloženy sedmidenní průměry průtoku spojené s prvním dnem daného sedmidenního úseku. \
+    Pokud není počet sledovaných dní dělitelný sedmi, jsou zbylá data na konci vstupního souboru zpracovány 
+
+        Parameters:
+                    vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
+                    vystup(str): Relativní či absolutní cesta k výstupnímu csv souboru
+    """
     with open(vstupni_data, encoding = "utf-8") as tyden_vstup,\
         open(vystup, "w", encoding = "utf-8") as tyden_vystup:
         reader = csv.reader(tyden_vstup)
@@ -53,6 +64,13 @@ def TydenniPrumery(vstupni_data, vystup):
     return()
 
 def RocniPrumery(vstupni_data, vystup):
+    """Funkce zpracovává vstupní csv soubor s daty o denních průtocích a vrací nový csv soubor, ve kterém \
+    jsou uloženy roční průměry průtoku spojené s prvním dnem daného roku se zaznamenanou informací o průtoku.
+
+        Parameters:
+                    vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
+                    vystup(str): Relativní či absolutní cesta k výstupnímu csv souboru
+    """
     with open(vstupni_data, encoding = "utf-8") as rok_vstup,\
         open(vystup, "w", encoding = "utf-8") as rok_vystup:
         reader = csv.reader(rok_vstup)
