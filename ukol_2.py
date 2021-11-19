@@ -2,7 +2,7 @@ import csv
 import datetime
 
 def OdecetDni(d,m,r,presah):
-    """Vrací datum formátu datetime, které nastalo před "presah" dnů od data "d.m.r".
+    """Vrací datum ve formátu datetime, které nastalo před "presah" dnů od data "d.m.r".
 
         Parameters:
                     d (int): Den z data od kterého bude odečítáno
@@ -12,7 +12,7 @@ def OdecetDni(d,m,r,presah):
         Returns:
                     vysledek(date): Výsledné datum ve formátu datetime.date, lze z něj volat day, month, year
     """
-    datum = datetime.date(r, m, d)
+    datum = datetime.date(r, m, d)              #Vstupní
     presah_dni = datetime.timedelta(presah-1)
     vysledek = datum - presah_dni
     return(vysledek)
@@ -26,10 +26,9 @@ def PlatneCislice(a, pocet_platnych):
         Returns:
                     vys(float): číslo zaokrouhlené na daný počet platných číslic za desetinnou čárkou
     """
-    a = round(a, pocet_platnych)
-    vys = "{:.4f}".format(a)
+    a = round(a, pocet_platnych)    #Zaokrouhlí číslo na místa za desetinnou čárkou 
+    vys = "{:.4f}".format(a)        #Docílí toho, aby byly vypsány všechny 4 číslice, i když jsou poslední z nich nuly
     return(vys)
-    
 
 def TydenniPrumery(vstupni_data, vystup):
     """Funkce zpracovává vstupní csv soubor s daty o denních průtocích a vrací nový csv soubor, ve kterém \
@@ -98,7 +97,6 @@ def RocniPrumery(vstupni_data, vystup):
         zapis_rok.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni])
     return()    
 
-
 def KontrolaDat(vstupni_data):
     """Funkce kontroluje koreknost vstupních dat.
 
@@ -140,7 +138,6 @@ def KontrolaDat(vstupni_data):
         if chyba == True:
             print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
             exit()
-
 
 KontrolaDat("vstup.csv")
 TydenniPrumery("vstup.csv", "vystup_7dni.csv")
