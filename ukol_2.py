@@ -17,7 +17,7 @@ def TydenniPrumery(vstupni_data, vystup):
     with open(vstupni_data, encoding = "utf-8") as tyden_vstup,\
         open(vystup, "w", encoding = "utf-8") as tyden_vystup:
         reader = csv.reader(tyden_vstup)
-        zapis_tyden  = csv.writer(tyden_vystup)
+        zapis_tyden  = csv.writer(tyden_vystup, lineterminator='\r')
         soucet = 0
         i = 0
         for row in reader:
@@ -44,7 +44,7 @@ def KontrolaDat(vstupni_data):
         chyba = False
         delka = 0
         for row in reader:
-            i += i
+            i += 1
             try:
                 if int(row[3]) < 1 or int(row[3]) > 12:
                     print(f"Chyba v datech, řádek {i}, neplatný měsíc.")
@@ -61,15 +61,37 @@ def KontrolaDat(vstupni_data):
                     print(f"Chyba v datech, řádek {i}, neplatný den.")
                     chyba = True
             except ValueError:
-                print("Chyba ve vstupních datech, den, měsíc či rok v desetinném čísle.")
+                print("Chyba ve vstupních datech, den, měsíc či rok v neplatném formátu(desetinné číslo, text, prázdné pole).")
                 chyba = True
         if chyba == True:
             print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
             exit()
 
-
-
-
+def RocniPrumery(vstupni_data, vystup):
+    with open(vstupni_data, encoding = "utf-8") as rok_vstup,\
+        open(vystup, "w", encoding = "utf-8") as rok_vystup:
+        reader = csv.reader(rok_vstup)
+        zapis_rok  = csv.writer(rok_vystup, lineterminator='\r')
+        i = 0
+        rok = 0
+        soucet = 0
+        for row in reader:
+            i += 1
+            if rok != int(row[2]):
+                vypis_radek = [row[0], row[1], row[2], row[3], row[4]]
+                prumer_hotovy = PlatneCislice(soucet/i, 4)
+                vypis_radek.append(prumer_hotovy)
+                zapis_rok.writerow(vypis_radek)
+                soucet = 0
+                i = 0
+                vypis_radek.clear
+            dat = row
+            soucet += float(row[5])
+            rok = int(row[2])
+        a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i)
+        prumer_posledni = PlatneCislice(soucet/i,  4)
+        zapis_rok.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni])
+    return()    
 
 KontrolaDat("vstup.csv")
 TydenniPrumery("vstup.csv", "vystup_7dni.csv")
