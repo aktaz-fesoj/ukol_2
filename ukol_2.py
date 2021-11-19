@@ -2,12 +2,27 @@ import csv
 import datetime
 
 def OdecetDni(d,m,r,presah):
+    """Vrací datum formátu datetime, které nastalo před "presah" dnů od data "d.m.r".
+    Parameters:
+                    d (int): Den z data od kterého bude odečítáno
+                    m (int): Měsíc z data od kterého bude odečítáno
+                    r (int): Rok z data od kterého bude odečítáno
+                    presah(int): Počet dní o které se bude datum posouvat zpět
+            Returns:
+                    vysledek (): Binary string of the sum of a and b
+    """
+
     datum = datetime.date(r, m, d)
     presah_dni = datetime.timedelta(presah-1)
     vysledek = datum - presah_dni
     return(vysledek)
 
 def PlatneCislice(a, pocet_platnych):
+    """Vrací číslo zaokrouhlené na daný počet platných číslic
+
+    Keyword arguments:
+    a -- 
+    """
     a = round(a, pocet_platnych)
     vys = "{:.4f}".format(a)
     return(vys)
@@ -108,3 +123,5 @@ KontrolaDat("vstup.csv")
 TydenniPrumery("vstup.csv", "vystup_7dni.csv")
 RocniPrumery("vstup.csv", "vystup_rok.csv")
 print("Program úspěšně proběhl.") 
+
+OdecetDni()
