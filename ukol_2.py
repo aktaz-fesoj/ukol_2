@@ -100,6 +100,11 @@ def RocniPrumery(vstupni_data, vystup):
 
 
 def KontrolaDat(vstupni_data):
+    """Funkce kontroluje koreknost vstupních dat.
+
+        Parameters:
+                    vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
+    """
     with open(vstupni_data, encoding = "utf-8") as vstup:
         reader = csv.reader(vstup)
         i = 0
@@ -140,6 +145,4 @@ def KontrolaDat(vstupni_data):
 KontrolaDat("vstup.csv")
 TydenniPrumery("vstup.csv", "vystup_7dni.csv")
 RocniPrumery("vstup.csv", "vystup_rok.csv")
-print("Program úspěšně proběhl.") 
-
-OdecetDni()
+print("Program úspěšně proběhl.")
