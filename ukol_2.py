@@ -57,9 +57,10 @@ def TydenniPrumery(vstupni_data, vystup):
                 soucet = 0                                                  #Proměnnou soucet vynuluji, aby se do ní mohlo sčítat opět od 0 pro další úsek dní
                 vypis_radek.clear                                           #Stejně tak vyčistím i seznam vypis_radek
             dat = row                                                       #Do proměnné dat si uložím daný řádek, využiji ji u posledního řádku ze souboru
-        a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i % 7 - 1)     #Proběhne-li předchozí cyklus na počtu řádků neceločíselně dělitelných sedmi, pomocí fce OdecetDni odečtu i%7 dní od data posledního dne ze souboru (i%7 vrátí počet dní, které byly "navíc" od posledního konce sedmidenního období)
-        prumer_posledni = PlatneCislice(soucet / (i % 7),  4)               #Spočítám průměr posledního období a pomocí fce PlatneCislice upravím (zaokrouhlím na čtyři platné číslice za desetinnou čárkou)
-        zapis_tyden.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni]) #Vypíši řádek o posledním období. Proměnná a vznikla výpočtem fcí OdecetDni, odkazuje na první datum daného období, o kterém vypisuji informace
+        if i % 7 != 0:                                                       #Pokud zbyly dny tzn. sedmi nelze dělit beze zbytku
+            a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i % 7 - 1)     #Proběhne-li předchozí cyklus na počtu řádků neceločíselně dělitelných sedmi, pomocí fce OdecetDni odečtu i%7 dní od data posledního dne ze souboru (i%7 vrátí počet dní, které byly "navíc" od posledního konce sedmidenního období)
+            prumer_posledni = PlatneCislice(soucet / (i % 7),  4)               #Spočítám průměr posledního období a pomocí fce PlatneCislice upravím (zaokrouhlím na čtyři platné číslice za desetinnou čárkou)
+            zapis_tyden.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni]) #Vypíši řádek o posledním období. Proměnná a vznikla výpočtem fcí OdecetDni, odkazuje na první datum daného období, o kterém vypisuji informace
     return()
 
 def RocniPrumery(vstupni_data, vystup):
@@ -102,52 +103,59 @@ def KontrolaDat(vstupni_data):
         Parameters:
                     vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
     """
-    with open(vstupni_data, encoding = "utf-8") as vstup:
-        reader = csv.reader(vstup)
-        i = 0
-        chyba = False
-        delka = 0
-        predchozi = datetime.date
-        for row in reader:
-            i += 1              #Počítadlo řádků
-            try:
-                if int(row[3]) < 1 or int(row[3]) > 12: #Číslo měsíce nemůže být větší než 12 ani menší než 0
-                    print(f"Chyba v datech, řádek {i}, neplatný měsíc.")
+    try:
+        with open(vstupni_data, encoding = "utf-8") as vstup:
+            reader = csv.reader(vstup)
+            i = 0
+            chyba = False
+            delka = 0
+            predchozi = datetime.date
+            for row in reader:
+                i += 1              #Počítadlo řádků
+                try:
+                    if int(row[3]) < 1 or int(row[3]) > 12: #Číslo měsíce nemůže být větší než 12 ani menší než 0
+                        print(f"Chyba v datech, řádek {i}, neplatný měsíc.")
+                        chyba = True
+                    if int(row[3]) == 1 or int(row[3]) == 3 or int(row[3]) == 5 or int(row[3]) == 7 or int(row[3]) == 8 or int(row[3]) == 10 or int(row[3]) == 12:      #Měsíce s délkou 31 dní
+                        delka = 31
+                    elif int(row[3]) == 2 and int(row[2]) % 4 == 0:      #Přestupné roky, únor má 29 dní. Existuje výjimka, ale poslední nastala v roce 1900 a další nastane až v roce 2100, nepředpokládám taková vstupní data. 
+                            delka = 29
+                    elif int(row[3]) == 2 and int(row[2]) % 4 != 0:      #Nepřestupné roky, únor má 28 dní
+                            delka = 28
+                    else:
+                        delka = 30              #Ostatní měsíce mají 30 dní
+                    if int(row[4]) < 1 or int(row[4]) > delka:      # Číslo dne nemůže být menší než 0 ani větší něž počet dní v daném měsíci
+                        print(f"Chyba v datech, řádek {i}, neplatný den.")
+                        chyba = True
+                except ValueError:          #V případě neceločíselných dat den, měsíc, rok se jedná o chybná data
+                    print(f"Chyba ve vstupních datech, den, měsíc či rok v neplatném formátu(desetinné číslo, text, prázdné pole). Identifikováno na řádku {i}.")
                     chyba = True
-                if int(row[3]) == 1 or int(row[3]) == 3 or int(row[3]) == 5 or int(row[3]) == 7 or int(row[3]) == 8 or int(row[3]) == 10 or int(row[3]) == 12:      #Měsíce s délkou 31 dní
-                    delka = 31
-                elif int(row[3]) == 2 and int(row[2]) % 4 == 0:      #Přestupné roky, únor má 29 dní. Existuje výjimka, ale poslední nastala v roce 1900 a další nastane až v roce 2100, nepředpokládám taková vstupní data. 
-                        delka = 29
-                elif int(row[3]) == 2 and int(row[2]) % 4 != 0:      #Nepřestupné roky, únor má 28 dní
-                        delka = 28
-                else:
-                    delka = 30              #Ostatní měsíce mají 30 dní
-                if int(row[4]) < 1 or int(row[4]) > delka:      # Číslo dne nemůže být menší než 0 ani větší něž počet dní v daném měsíci
-                    print(f"Chyba v datech, řádek {i}, neplatný den.")
+                try:                    #Kontrola dat průtoků
+                    float(row[5])
+                except ValueError:
+                    print(f"Chyba ve vstupních datech. Průtok na řádku {i} není číslo.")
                     chyba = True
-            except ValueError:          #V případě neceločíselných dat den, měsíc, rok se jedná o chybná data
-                print(f"Chyba ve vstupních datech, den, měsíc či rok v neplatném formátu(desetinné číslo, text, prázdné pole). Identifikováno na řádku {i}.")
-                chyba = True
-            try:                    #Kontrola dat průtoků
-                float(row[5])
-            except ValueError:
-                print(f"Chyba ve vstupních datech. Průtok na řádku {i} není číslo.")
-                chyba = True
-            if float(row[5]) <= 0:
-                print(f"Nulový, nebo záporný průtok na řádku {i}, dne {row[4]}. {row[3]}. {row[2]}.")
+                if float(row[5]) <= 0:
+                    print(f"Nulový, nebo záporný průtok na řádku {i}, dne {row[4]}. {row[3]}. {row[2]}.")
 
-            aktualni = datetime.date(int(row[2]), int(row[3]), int(row[4]))                 #Proměnná aktualni uloží datum právě zpracovávaného řádku
-            if OdecetDni(int(row[4]), int(row[3]), int(row[2]), 1) != predchozi and i != 1: #Fce odecet dni vratí datum předcházejícího dne. Pokud se toto datum nerovná datu uloženému v proměnné predchozi, den(nebo dny) v datech chybí. Speciálním případem je 1. průběh cyklu, tehdy není s čím srovnávat, proto je uvedena podmínka i != 1
-                mezera = aktualni - predchozi               #mezera je počet dní chybějících mezi dnem v aktuálním cyklu a dnem v předchozím cyklu
-                for dira in range (1,int(mezera.days),1):   #Cyklus, který vypíše chybějící dny, z mezera volám rozdíl dnů
-                    den = OdecetDni(aktualni.day, aktualni.month, aktualni.year, dira) #Odečítám pomocí funkce OdecetDni od aktuálního dne postupně dira až do počtu chybějících dní
-                    print(f"Chybí den {den.day}. {den.month}. {den.year}")
-                    chyba = True
-            predchozi = datetime.date(int(row[2]), int(row[3]), int(row[4]))    #Ukládá datum z aktuální iterace pro porovnání v iteraci příští
+                aktualni = datetime.date(int(row[2]), int(row[3]), int(row[4]))                 #Proměnná aktualni uloží datum právě zpracovávaného řádku
+                if OdecetDni(int(row[4]), int(row[3]), int(row[2]), 1) != predchozi and i != 1: #Fce odecet dni vratí datum předcházejícího dne. Pokud se toto datum nerovná datu uloženému v proměnné predchozi, den(nebo dny) v datech chybí. Speciálním případem je 1. průběh cyklu, tehdy není s čím srovnávat, proto je uvedena podmínka i != 1
+                    mezera = aktualni - predchozi               #mezera je počet dní chybějících mezi dnem v aktuálním cyklu a dnem v předchozím cyklu
+                    for dira in range (1,int(mezera.days),1):   #Cyklus, který vypíše chybějící dny, z mezera volám rozdíl dnů
+                        den = OdecetDni(aktualni.day, aktualni.month, aktualni.year, dira) #Odečítám pomocí funkce OdecetDni od aktuálního dne postupně dira až do počtu chybějících dní
+                        print(f"Chybí den {den.day}. {den.month}. {den.year}")
+                        chyba = True
+                predchozi = datetime.date(int(row[2]), int(row[3]), int(row[4]))    #Ukládá datum z aktuální iterace pro porovnání v iteraci příští
 
-        if chyba == True:                               #Identifikovala-li fce chybu v datech, vypíše hlášku a ukončí běh programu.
-            print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
-            exit()
+            if chyba == True:                               #Identifikovala-li fce chybu v datech, vypíše hlášku a ukončí běh programu.
+                print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
+                exit()
+    except FileNotFoundError:
+        print("Soubor vstup.csv nebyl nalezen ve stejné složce, z jaké spouštíte tento program. Přejmenujte, případně přesuňte csv soubor.")
+        exit()  
+    except PermissionError:
+        print("Program nemá oprávnění číst soubor vstup.csv.")
+        exit()
 
 def MaxMinPrutok(vstupni_data):
     with open(vstupni_data, encoding = "utf-8") as vstup:
