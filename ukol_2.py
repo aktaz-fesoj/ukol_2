@@ -12,8 +12,8 @@ def OdecetDni(d,m,r,presah):
         Returns:
                     vysledek(date): Výsledné datum ve formátu datetime.date, lze z něj volat day, month, year
     """
-    datum = datetime.date(r, m, d)              #Vstupní
-    presah_dni = datetime.timedelta(presah-1)
+    datum = datetime.date(r, m, d)              #Vstupní datum
+    presah_dni = datetime.timedelta(presah-1)   #Počet odčítaných dní
     vysledek = datum - presah_dni
     return(vysledek)
 
@@ -40,26 +40,26 @@ def TydenniPrumery(vstupni_data, vystup):
                     vystup(str): Relativní či absolutní cesta k výstupnímu csv souboru
     """
     with open(vstupni_data, encoding = "utf-8") as tyden_vstup,\
-        open(vystup, "w", encoding = "utf-8") as tyden_vystup:
+        open(vystup, "w", encoding = "utf-8") as tyden_vystup:              #Otevírá vstupní a výstupní csv soubory
         reader = csv.reader(tyden_vstup)
         zapis_tyden  = csv.writer(tyden_vystup, lineterminator='\r')
         soucet = 0
         i = 0
         for row in reader:
-            i += 1
-            if i % 7 == 1 or i == 1:
-                vypis_radek = [row[0], row[1], row[2], row[3], row[4]]
-            soucet += float(row[5])
-            if i % 7 == 0:
-                prumer_hotovy = PlatneCislice(soucet/7, 4)
-                vypis_radek.append(prumer_hotovy)
-                zapis_tyden.writerow(vypis_radek)
-                soucet = 0
-                vypis_radek.clear
-            dat = row
-        a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i % 7)
-        prumer_posledni = PlatneCislice(soucet / (i % 7),  4)
-        zapis_tyden.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni])
+            i += 1                                                          #Počítá dny, při každém opakování se zvýší o 1
+            if i % 7 == 1:                                                  #Je-li zbytek po i/7 roven 1, znamená to, že začal nový týden
+                vypis_radek = [row[0], row[1], row[2], row[3], row[4]]      #Uložím tedy do seznamu informace, které mají být vypsány o prvním dni sledovaného období
+            soucet += float(row[5])                                         #Při každém opakování přičtu průtok daného dne
+            if i % 7 == 0:                                                  #Je li i dělitelné beze zbytku sedmi, jde o poslední den týdne
+                prumer_hotovy = PlatneCislice(soucet/7, 4)                  #Spočtu tedy průměr průtoků z sedm dní, který pomocí fce PlatneCislice upravím na 4 platné číslice
+                vypis_radek.append(prumer_hotovy)                           #Přidám ho do seznamu k údajům z prvního dne sedmidenního období
+                zapis_tyden.writerow(vypis_radek)                           #Celý seznam vypíši jako řádek do nového csv souboru
+                soucet = 0                                                  #Proměnnou soucet vynuluji, aby se do ní mohlo sčítat opět od 0 pro další úsek dní
+                vypis_radek.clear                                           #Stejně tak vyčistím i seznam vypis_radek
+            dat = row                                                       #Do proměnné dat si uložím daný řádek, využiji ji u posledního řádku ze souboru
+        a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i % 7)         #Proběhne-li předchozí cyklus na počtu řádků neceločíselně dělitelných sedmi, pomocí fce OdecetDni odečtu i%7 dní od data posledního dne ze souboru (i%7 vrátí počet dní, které byly "navíc" od posledního konce sedmidenního období)
+        prumer_posledni = PlatneCislice(soucet / (i % 7),  4)               #Spočítám průměr posledního období a pomocí fce PlatneCislice upravím (zaokrouhlím na čtyři platné číslice za desetinnou čárkou)
+        zapis_tyden.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni]) #Vypíši řádek o posledním období. Proměnná a vznikla výpočtem fcí OdecetDni, odkazuje na první datum daného období, o kterém vypisuji informace
     return()
 
 def RocniPrumery(vstupni_data, vystup):
@@ -71,30 +71,29 @@ def RocniPrumery(vstupni_data, vystup):
                     vystup(str): Relativní či absolutní cesta k výstupnímu csv souboru
     """
     with open(vstupni_data, encoding = "utf-8") as rok_vstup,\
-        open(vystup, "w", encoding = "utf-8") as rok_vystup:
+        open(vystup, "w", encoding = "utf-8") as rok_vystup:                #Otevírá vstupní a výstupní csv soubory
         reader = csv.reader(rok_vstup)
-        zapis_rok  = csv.writer(rok_vystup, lineterminator='\r')
+        zapis_rok  = csv.writer(rok_vystup, lineterminator='\r')            #Definování lineiteretoru (oddělovače řádků) jako \r zajistí, aby nevznikal prázdný řádek mezi každými dvěma řádky
         i = 0
         rok = 0
         soucet = 0
         for row in reader:
-            if rok == 0:
-                vypis_radek = [row[0], row[1], row[2], row[3], row[4]]
-            if rok != int(row[2]) and rok !=0:
-                prumer_hotovy = PlatneCislice(soucet/i, 4)
-                vypis_radek.append(prumer_hotovy)
-                zapis_rok.writerow(vypis_radek)
-                soucet = 0
-                i = 0
-                vypis_radek.clear
-                vypis_radek = [row[0], row[1], row[2], row[3], row[4]]
-            i += 1
-            dat = row
-            soucet += float(row[5])
-            rok = int(row[2])
-        a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i)
-        prumer_posledni = PlatneCislice(soucet/i,  4)
-        zapis_rok.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni])
+            if rok == 0:                                                    #Uloží informace o prvním roce do seznamu vypis_radek
+                vypis_radek = [row[0], row[1], row[2], row[3], row[4]]      
+            if rok != int(row[2]) and rok !=0:                              #Vždy když dojde ke změně roku, vypíše průměrný průtok spolu s informacemi o prvním dni období, podobně jako fce TydenniPrumery
+                prumer_hotovy = PlatneCislice(soucet/i, 4)                  #Spočítá průměr a upraví ho do požadovaného formátu. Proměnná i uchovává počet sčítaných průtoků - dní v období.
+                vypis_radek.append(prumer_hotovy)                           #Přidá výsledný průměr do seznamu k informacím z prvního dne daného období
+                zapis_rok.writerow(vypis_radek)                             #Vypíše všechny tyto informace jako řádek do výstupního souboru
+                soucet = 0                                                  #Vynuluje soucet, tak aby pro nový rok byl počítán znovu od nuly
+                i = 0                                                       #Vynuluje i, tedy proměnnou uchovávající počet sečtených průtoků v daném období
+                vypis_radek.clear                                           #Vyčistí seznam, který byl již vypsán
+                vypis_radek = [row[0], row[1], row[2], row[3], row[4]]      #Uloží informace o prvním dni nového roku
+            i += 1                                                          #Počítá počet dní, respektive započítaných průtoků
+            soucet += float(row[5])                                         #Sčítání průtoků
+            rok = int(row[2])                                               #Ukládá do proměnné rok letopočet z daného řádku, tak aby mohl být v dalším opakování porovnán s novým letopočtem
+        prumer_posledni = PlatneCislice(soucet/i,  4)                       #Spočítá průměr pro poslední rok
+        vypis_radek.append(prumer_posledni)                                 #Přidá poslední průměr do seznamu k informací z prvního dne roku
+        zapis_rok.writerow(vypis_radek)                                     #Vypíše informace o posledním ze sledovaných roků
     return()    
 
 def KontrolaDat(vstupni_data):
@@ -109,35 +108,40 @@ def KontrolaDat(vstupni_data):
         chyba = False
         delka = 0
         for row in reader:
-            i += 1
+            i += 1              #Počítadlo řádků
             try:
-                if int(row[3]) < 1 or int(row[3]) > 12:
+                if int(row[3]) < 1 or int(row[3]) > 12: #Číslo měsíce nemůže být větší než 12 ani menší než 0
                     print(f"Chyba v datech, řádek {i}, neplatný měsíc.")
                     chyba = True
 
-                if int(row[3]) == 1 or int(row[3]) == 3 or int(row[3]) == 5 or int(row[3]) == 7 or int(row[3]) == 8 or int(row[3]) == 10 or int(row[3]) == 12:
+                if int(row[3]) == 1 or int(row[3]) == 3 or int(row[3]) == 5 or int(row[3]) == 7 or int(row[3]) == 8 or int(row[3]) == 10 or int(row[3]) == 12:      #Měsíce s délkou 31 dní
                     delka = 31
-                elif int(row[3]) == 2 and int(row[2]) % 4 == 0:
+                elif int(row[3]) == 2 and int(row[2]) % 4 == 0:      #Přestupné roky, únor má 29 dní. Existuje výjimka, ale poslední nastala v roce 1900 a další nastane až v roce 2100, nepředpokládám taková vstupní data. 
                         delka = 29
-                elif int(row[3]) == 2 and int(row[2]) % 4 != 0:
+                elif int(row[3]) == 2 and int(row[2]) % 4 != 0:      #Nepřestupné roky, únor má 28 dní
                         delka = 28
                 else:
-                    delka = 30
+                    delka = 30              #Ostatní měsíce mají 30 dní
 
-                if int(row[4]) < 1 or int(row[4]) > delka:
+                if int(row[4]) < 1 or int(row[4]) > delka:      # Číslo dne nemůže být menší než 0 ani větší něž počet dní v daném měsíci
                     print(f"Chyba v datech, řádek {i}, neplatný den.")
                     chyba = True
-            except ValueError:
+            except ValueError:          #V případě neceločíselných dat den, měsíc, rok se jedná o chybná data
                 print(f"Chyba ve vstupních datech, den, měsíc či rok v neplatném formátu(desetinné číslo, text, prázdné pole). Identifikováno na řádku {i}.")
                 chyba = True
-            try:
+            try:                    #Kontrola dat průtoků
                 float(row[5])
             except ValueError:
                 print(f"Chyba ve vstupních datech. Průtok na řádku {i} není číslo.")
                 chyba = True
-        if chyba == True:
+        if chyba == True:                               #Identifikovala-li fce chybu v datech, vypíše hlášku a ukončí běh programu.
             print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
             exit()
+
+def max_prutok(vstupni_data):
+    with open(vstupni_data, encoding = "utf-8") as vstup:
+        reader = csv.reader(vstup)
+
 
 KontrolaDat("vstup.csv")
 TydenniPrumery("vstup.csv", "vystup_7dni.csv")
