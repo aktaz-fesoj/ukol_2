@@ -13,7 +13,7 @@ def OdecetDni(d,m,r,presah):
                     vysledek(date): Výsledné datum ve formátu datetime.date, lze z něj volat day, month, year
     """
     datum = datetime.date(r, m, d)              #Vstupní datum
-    presah_dni = datetime.timedelta(presah-1)   #Počet odčítaných dní
+    presah_dni = datetime.timedelta(presah)   #Počet odčítaných dní
     vysledek = datum - presah_dni
     return(vysledek)
 
@@ -57,7 +57,7 @@ def TydenniPrumery(vstupni_data, vystup):
                 soucet = 0                                                  #Proměnnou soucet vynuluji, aby se do ní mohlo sčítat opět od 0 pro další úsek dní
                 vypis_radek.clear                                           #Stejně tak vyčistím i seznam vypis_radek
             dat = row                                                       #Do proměnné dat si uložím daný řádek, využiji ji u posledního řádku ze souboru
-        a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i % 7)         #Proběhne-li předchozí cyklus na počtu řádků neceločíselně dělitelných sedmi, pomocí fce OdecetDni odečtu i%7 dní od data posledního dne ze souboru (i%7 vrátí počet dní, které byly "navíc" od posledního konce sedmidenního období)
+        a = OdecetDni(int(dat[4]), int(dat[3]), int(dat[2]), i % 7 - 1)     #Proběhne-li předchozí cyklus na počtu řádků neceločíselně dělitelných sedmi, pomocí fce OdecetDni odečtu i%7 dní od data posledního dne ze souboru (i%7 vrátí počet dní, které byly "navíc" od posledního konce sedmidenního období)
         prumer_posledni = PlatneCislice(soucet / (i % 7),  4)               #Spočítám průměr posledního období a pomocí fce PlatneCislice upravím (zaokrouhlím na čtyři platné číslice za desetinnou čárkou)
         zapis_tyden.writerow([dat[0], dat[1], a.year, a.month, a.day, prumer_posledni]) #Vypíši řádek o posledním období. Proměnná a vznikla výpočtem fcí OdecetDni, odkazuje na první datum daného období, o kterém vypisuji informace
     return()
@@ -138,12 +138,31 @@ def KontrolaDat(vstupni_data):
             print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
             exit()
 
-def max_prutok(vstupni_data):
+def MaxMinPrutok(vstupni_data):
     with open(vstupni_data, encoding = "utf-8") as vstup:
         reader = csv.reader(vstup)
+        i=0
+        for row in reader:
+            i += 1
+            if i == 1:
+                max = float(row[5])
+                max_info = [i, row[2], row[3], row[4]]
+                min = float(row[5])
+                min_info = [i, row[2], row[3], row[4]]
+            if float(row[5]) > max:
+                max = float(row[5])
+                max_info = [i, row[2], row[3], row[4]]
+            if float(row[5]) < min:
+                min = float(row[5])
+                min_info = [i, row[2], row[3], row[4]]
+        
+        print(f"Maximální průtok detekován na řádku {max_info[0]}, datum: {max_info[3]}. {max_info[2]}. {max_info[1]}, průtok: {max}.")
+        print(f"Maximální průtok detekován na řádku {min_info[0]}, datum: {min_info[3]}. {min_info[2]}. {min_info[1]}, průtok: {min}.")
+        return()
 
 
 KontrolaDat("vstup.csv")
 TydenniPrumery("vstup.csv", "vystup_7dni.csv")
 RocniPrumery("vstup.csv", "vystup_rok.csv")
+MaxMinPrutok("vstup.csv")
 print("Program úspěšně proběhl.")
