@@ -18,7 +18,7 @@ def OdecetDni(d,m,r,presah):
     return(vysledek)
 
 def PlatneCislice(a, pocet_platnych):
-    """Vrací číslo zaokrouhlené na daný počet platných číslic za desetinnou čárkou
+    """Vrací číslo zaokrouhlené na daný počet platných číslic za desetinnou čárkou.
 
         Parameters:
                     a (float): Číslo, které bude upraveno
@@ -31,9 +31,11 @@ def PlatneCislice(a, pocet_platnych):
     return(vys)
 
 def TydenniPrumery(vstupni_data, vystup):
-    """Funkce zpracovává vstupní csv soubor s daty o denních průtocích a vrací nový csv soubor, ve kterém \
+    """Funkce zpracovává data o sedmidenních průtocích z csv souboru.
+    
+    Funkce zpracovává vstupní csv soubor s daty o denních průtocích a vrací nový csv soubor, ve kterém \
     jsou uloženy sedmidenní průměry průtoku spojené s prvním dnem daného sedmidenního úseku. \
-    Pokud není počet sledovaných dní dělitelný sedmi, jsou zbylá data na konci vstupního souboru zpracovány 
+    Pokud není počet sledovaných dní dělitelný sedmi, jsou zbylá data na konci vstupního souboru zpracovány.
 
         Parameters:
                     vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
@@ -64,7 +66,9 @@ def TydenniPrumery(vstupni_data, vystup):
     return()
 
 def RocniPrumery(vstupni_data, vystup):
-    """Funkce zpracovává vstupní csv soubor s daty o denních průtocích a vrací nový csv soubor, ve kterém \
+    """Funkce zpracovává data o ročních průtocích z csv souboru.
+    
+    Funkce zpracovává vstupní csv soubor s daty o denních průtocích a vrací nový csv soubor, ve kterém \
     jsou uloženy roční průměry průtoku spojené s prvním dnem daného roku se zaznamenanou informací o průtoku.
 
         Parameters:
@@ -92,13 +96,16 @@ def RocniPrumery(vstupni_data, vystup):
             i += 1                                                          #Počítá počet dní, respektive započítaných průtoků
             soucet += float(row[5])                                         #Sčítání průtoků
             rok = int(row[2])                                               #Ukládá do proměnné rok letopočet z daného řádku, tak aby mohl být v dalším opakování porovnán s novým letopočtem
-        prumer_posledni = PlatneCislice(soucet/i,  4)                       #Spočítá průměr pro poslední rok
-        vypis_radek.append(prumer_posledni)                                 #Přidá poslední průměr do seznamu k informací z prvního dne roku
-        zapis_rok.writerow(vypis_radek)                                     #Vypíše informace o posledním ze sledovaných roků
+        if i != 0:                                                           
+            prumer_posledni = PlatneCislice(soucet/i,  4)                    #Spočítá průměr pro poslední rok
+            vypis_radek.append(prumer_posledni)                              #Přidá poslední průměr do seznamu k informací z prvního dne roku
+            zapis_rok.writerow(vypis_radek)                                  #Vypíše informace o posledním ze sledovaných roků
     return()    
 
 def KontrolaDat(vstupni_data):
     """Funkce kontroluje koreknost vstupních dat.
+
+        Kontroluje se korektnost čísla dnea měsíce, dat o průtoku, přístupnost csv souboru, to jestli nění prázdný.
 
         Parameters:
                     vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
@@ -109,7 +116,6 @@ def KontrolaDat(vstupni_data):
             i = 0
             chyba = False
             delka = 0
-            predchozi = datetime.date
             for row in reader:
                 i += 1              #Počítadlo řádků
                 try:
@@ -137,25 +143,20 @@ def KontrolaDat(vstupni_data):
                     chyba = True
                 if float(row[5]) <= 0:
                     print(f"Nulový, nebo záporný průtok na řádku {i}, dne {row[4]}. {row[3]}. {row[2]}.")
-
-                aktualni = datetime.date(int(row[2]), int(row[3]), int(row[4]))                 #Proměnná aktualni uloží datum právě zpracovávaného řádku
-                if OdecetDni(int(row[4]), int(row[3]), int(row[2]), 1) != predchozi and i != 1: #Fce odecet dni vratí datum předcházejícího dne. Pokud se toto datum nerovná datu uloženému v proměnné predchozi, den(nebo dny) v datech chybí. Speciálním případem je 1. průběh cyklu, tehdy není s čím srovnávat, proto je uvedena podmínka i != 1
-                    mezera = aktualni - predchozi               #mezera je počet dní chybějících mezi dnem v aktuálním cyklu a dnem v předchozím cyklu
-                    for dira in range (1,int(mezera.days),1):   #Cyklus, který vypíše chybějící dny, z mezera volám rozdíl dnů
-                        den = OdecetDni(aktualni.day, aktualni.month, aktualni.year, dira) #Odečítám pomocí funkce OdecetDni od aktuálního dne postupně dira až do počtu chybějících dní
-                        print(f"Chybí den {den.day}. {den.month}. {den.year}")
-                        chyba = True
-                predchozi = datetime.date(int(row[2]), int(row[3]), int(row[4]))    #Ukládá datum z aktuální iterace pro porovnání v iteraci příští
-
+            if i == 0:
+                print("Vstupní soubor je prázdný.")         #Je-li vstupní soubor prázdný, neprovede se žádná iterace -> i = 0
+                chyba = True
             if chyba == True:                               #Identifikovala-li fce chybu v datech, vypíše hlášku a ukončí běh programu.
                 print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
                 exit()
+                
     except FileNotFoundError:
         print("Soubor vstup.csv nebyl nalezen ve stejné složce, z jaké spouštíte tento program. Přejmenujte, případně přesuňte csv soubor.")
         exit()  
     except PermissionError:
         print("Program nemá oprávnění číst soubor vstup.csv.")
         exit()
+    return(print("Prvotní kontrola dat v souboru proběhla úspěšně."))
 
 def MaxMinPrutok(vstupni_data):
     with open(vstupni_data, encoding = "utf-8") as vstup:
@@ -179,8 +180,22 @@ def MaxMinPrutok(vstupni_data):
         print(f"Maximální průtok detekován na řádku {min_info[0]}, datum: {min_info[3]}. {min_info[2]}. {min_info[1]}, průtok: {min}.")
         return()
 
+def ChybejiciDny(vstupni_data):
+    with open(vstupni_data, encoding = "utf-8") as vstup:
+            reader = csv.reader(vstup)
+            for row in reader:
+                aktualni = datetime.date(int(row[2]), int(row[3]), int(row[4]))                 #Proměnná aktualni uloží datum právě zpracovávaného řádku
+                if OdecetDni(int(row[4]), int(row[3]), int(row[2]), 1) != predchozi and i != 1: #Fce odecet dni vratí datum předcházejícího dne. Pokud se toto datum nerovná datu uloženému v proměnné predchozi, den(nebo dny) v datech chybí. Speciálním případem je 1. průběh cyklu, tehdy není s čím srovnávat, proto je uvedena podmínka i != 1
+                    mezera = aktualni - predchozi                                               #mezera je počet dní chybějících mezi dnem v aktuálním cyklu a dnem v předchozím cyklu
+                    for dira in range (1,int(mezera.days),1):                                   #Cyklus, který vypíše chybějící dny, z mezera volám rozdíl dnů
+                        den = OdecetDni(aktualni.day, aktualni.month, aktualni.year, dira)      #Odečítám pomocí funkce OdecetDni od aktuálního dne postupně dira až do počtu chybějících dní
+                        print(f"Chybí den {den.day}. {den.month}. {den.year}")
+                predchozi = datetime.date(int(row[2]), int(row[3]), int(row[4]))                #Ukládá datum z aktuální iterace pro porovnání v iteraci příští
+
+
 
 KontrolaDat("vstup.csv")
+ChybejiciDny("vstup.csv")
 TydenniPrumery("vstup.csv", "vystup_7dni.csv")
 RocniPrumery("vstup.csv", "vystup_rok.csv")
 MaxMinPrutok("vstup.csv")
