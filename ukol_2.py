@@ -105,7 +105,7 @@ def RocniPrumery(vstupni_data, vystup):
 def KontrolaDat(vstupni_data):
     """Funkce kontroluje koreknost vstupních dat.
 
-        Kontroluje se korektnost čísla dnea měsíce, dat o průtoku, přístupnost csv souboru, to jestli není prázdný.
+        Kontroluje se korektnost čísla dne a měsíce, dat o průtoku, přístupnost csv souboru, to jestli není prázdný.
 
         Parameters:
                     vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
@@ -192,7 +192,7 @@ def MaxMinPrutok(vstupni_data):
         
         print(f"Maximální průtok detekován na řádku {max_info[0]}, datum: {max_info[3]}. {max_info[2]}. {max_info[1]}, průtok: {max}.")
         print(f"Maximální průtok detekován na řádku {min_info[0]}, datum: {min_info[3]}. {min_info[2]}. {min_info[1]}, průtok: {min}.")
-        return(max, min, max_info, min_info)
+        return()
 
 def ChybejiciDny(vstupni_data):
     """Funkce vypíše dny chybějící v datech.
@@ -215,8 +215,7 @@ def ChybejiciDny(vstupni_data):
                         den = OdecetDni(aktualni.day, aktualni.month, aktualni.year, dira)      #Odečítám pomocí funkce OdecetDni od aktuálního dne postupně dira až do počtu chybějících dní
                         print(f"Chybí den {den.day}. {den.month}. {den.year}")
                 predchozi = datetime.date(int(row[2]), int(row[3]), int(row[4]))                #Ukládá datum z aktuální iterace pro porovnání v iteraci příští
-
-
+    return()
 
 KontrolaDat("vstup.csv")
 ChybejiciDny("vstup.csv")
