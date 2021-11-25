@@ -1,0 +1,31 @@
+Návod k použití programu ke zpracovaní hydrologických dat o průtocích.
+-----------------------------------------------------------------------
+
+Do rukou se Vám dostal program zpracovávající data ze vstupního souboru formátu csv. Tento vstupní soubor musí být pro správnou 
+funkčnost programu pojmenován vstup.csv a uložen ve složce, ze které spouštíte program.
+
+Data v csv souboru musí mít pro správnou funkčnost programu následující strukturu:
+databázové číslo (celočíselná hodnota), označení typu dat (textový řetězec - typicky QD - tzn. denní průtoky), 
+rok (celé číslo), měsíc (celé číslo), den (celé číslo), průměrný průtok (desetinné číslo)
+
+Program nejprve provede kontrolu dat, kontroluje korektnost data, ověří kladnost průtoku, taktéž kontroluje strukturu dat.
+Program vypíše do konzole chybějící dny, pokud takové v souboru nalezne. Za chybějící den je považováno chybějící datum mezi 
+prvním a posledním datem v souboru.
+
+Pokud kontrola dat objeví chybu, informace o ní budou vypsány a program uživatele vyzve k opravě.
+Pokud žádná chyba objevena není, proběhne nejprve výpočet sedmidenních průměrných průtoků. Ty jsou spolu s prvním dnem daného úseku 
+uloženy do nového souboru vystup_7dni.csv s následující strukturou:
+databázové číslo (celočíselná hodnota), označení typu dat prvního dne úseku(textový řetězec -typicky QD - tzn. denní průtoky), 
+rok prvního dne úseku (celé číslo), měsíc prvního dne úseku (celé číslo), 
+den prvního dne úseku (celé číslo), průměrný průtok úseku (desetinné číslo)
+Pokud na konci běhu programu zůstane úsek, který nemá délku sedmi dní, provede se výpočet pro zbývající dny a ten je zapsán do výstupního souboru.
+
+Následuje výpočet ročních průměrných průtoků. Rok je identifikován dle sloupce "rok (celé číslo)" ve vstupních datech.
+Průměrné průtoky jsou uloženy do nového souboru vystup_rok.csv s následující strukturou:
+databázové číslo (celočíselná hodnota), označení typu dat prvního dne úseku(textový řetězec -typicky QD - tzn. denní průtoky), 
+rok prvního dne úseku (celé číslo), měsíc prvního dne úseku (celé číslo), 
+den prvního dne úseku (celé číslo), průměrný průtok úseku (desetinné číslo)
+Vstupní data nemusejí začínat 1. lednem, v takovém případě je vypsán první sledovaný den a úsek končí koncem kalendářního roku.
+Naopak poslední data mohou být zaznamenána v průběhu roku, tehdy bude vypočet proveden na daném vzorku.
+
+Pokud program úspěšně proběhne, informuje o tom uživatele. Soubory vystup_7.csv a vystup_rok.csv jsou uloženy ve stejné složce jako vstupní csv soubor.
