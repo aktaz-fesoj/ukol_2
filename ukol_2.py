@@ -105,7 +105,7 @@ def RocniPrumery(vstupni_data, vystup):
 def KontrolaDat(vstupni_data):
     """Funkce kontroluje koreknost vstupních dat.
 
-        Kontroluje se korektnost čísla dnea měsíce, dat o průtoku, přístupnost csv souboru, to jestli nění prázdný.
+        Kontroluje se korektnost čísla dnea měsíce, dat o průtoku, přístupnost csv souboru, to jestli není prázdný.
 
         Parameters:
                     vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
@@ -116,6 +116,7 @@ def KontrolaDat(vstupni_data):
             i = 0
             chyba = False
             delka = 0
+            prutok_cislo = 1
             for row in reader:
                 i += 1              #Počítadlo řádků
                 try:
@@ -141,8 +142,10 @@ def KontrolaDat(vstupni_data):
                 except ValueError:
                     print(f"Chyba ve vstupních datech. Průtok na řádku {i} není číslo.")
                     chyba = True
-                if float(row[5]) <= 0:
-                    print(f"Nulový, nebo záporný průtok na řádku {i}, dne {row[4]}. {row[3]}. {row[2]}.")
+                    prutok_cislo = 0
+                if prutok_cislo != 0:
+                    if float(row[5]) <= 0:
+                        print(f"Nulový, nebo záporný průtok na řádku {i}, dne {row[4]}. {row[3]}. {row[2]}.")
             if i == 0:
                 print("Vstupní soubor je prázdný.")         #Je-li vstupní soubor prázdný, neprovede se žádná iterace -> i = 0
                 chyba = True
@@ -155,10 +158,21 @@ def KontrolaDat(vstupni_data):
         exit()  
     except PermissionError:
         print("Program nemá oprávnění číst soubor vstup.csv.")
+        print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
         exit()
+    except IndexError:
+        print("Byla nelezena chyba ve struktuře dat. Přečtěte si prosím uživatelskou dokumentaci.")
+        print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
     return(print("Prvotní kontrola dat v souboru proběhla úspěšně."))
 
 def MaxMinPrutok(vstupni_data):
+    """Funkce vrací maximální a minimální průtok spolu s dalšími údaji.
+
+        Funkce vypíše do konzole maximální a minimální průtok spolu s údaji o dni ve kterém bylo maximum a minimum naměřeno.
+
+        Parameters:
+                    vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
+    """
     with open(vstupni_data, encoding = "utf-8") as vstup:
         reader = csv.reader(vstup)
         i=0
@@ -178,12 +192,22 @@ def MaxMinPrutok(vstupni_data):
         
         print(f"Maximální průtok detekován na řádku {max_info[0]}, datum: {max_info[3]}. {max_info[2]}. {max_info[1]}, průtok: {max}.")
         print(f"Maximální průtok detekován na řádku {min_info[0]}, datum: {min_info[3]}. {min_info[2]}. {min_info[1]}, průtok: {min}.")
-        return()
+        return(max, min, max_info, min_info)
 
 def ChybejiciDny(vstupni_data):
+    """Funkce vypíše dny chybějící v datech.
+
+        Funkce vypíše data chybějící mezi dtem na prvním řádku a datem posledním v datech
+
+        Parameters:
+                    vstupni_data(str): Relativní či absolutní cesta ke vstupnímu csv souboru
+    """
     with open(vstupni_data, encoding = "utf-8") as vstup:
             reader = csv.reader(vstup)
+            i = 0
+            predchozi = datetime.date(1,1,1)
             for row in reader:
+                i += 1
                 aktualni = datetime.date(int(row[2]), int(row[3]), int(row[4]))                 #Proměnná aktualni uloží datum právě zpracovávaného řádku
                 if OdecetDni(int(row[4]), int(row[3]), int(row[2]), 1) != predchozi and i != 1: #Fce odecet dni vratí datum předcházejícího dne. Pokud se toto datum nerovná datu uloženému v proměnné predchozi, den(nebo dny) v datech chybí. Speciálním případem je 1. průběh cyklu, tehdy není s čím srovnávat, proto je uvedena podmínka i != 1
                     mezera = aktualni - predchozi                                               #mezera je počet dní chybějících mezi dnem v aktuálním cyklu a dnem v předchozím cyklu
