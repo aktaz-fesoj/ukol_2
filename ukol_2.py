@@ -153,7 +153,7 @@ def kontroladat(vstupni_data):
     except IndexError:
         print("Byla nelezena chyba ve struktuře dat. Přečtěte si prosím uživatelskou dokumentaci.")
         print("Prosím, opravte vstupní data a zkuste to ještě jednou.")
-    return(print("Prvotní kontrola dat v souboru proběhla úspěšně."))
+    print("Prvotní kontrola dat v souboru proběhla úspěšně.")
 
 def maxminprutok(vstupni_data):
     """Funkce vrací maximální a minimální průtok spolu s dalšími údaji.
@@ -169,23 +169,23 @@ def maxminprutok(vstupni_data):
         for row in reader:
             i += 1
             if i == 1:
-                max = float(row[5])
+                maximum = float(row[5])
                 max_info = [i]
                 max_info.extend(row[2:5])
-                min = float(row[5])
+                minimum = float(row[5])
                 min_info = [i]
                 min_info.extend(row[2:5])
-            if float(row[5]) > max:
-                max = float(row[5])
+            if float(row[5]) > maximum:
+                maximum = float(row[5])
                 max_info = [i]
                 max_info.extend(row[2:5])
-            if float(row[5]) < min:
-                min = float(row[5])
+            if float(row[5]) < minimum:
+                minimum = float(row[5])
                 min_info = [i]
                 min_info.extend(row[2:5])
         
-        print(f"Maximální průtok detekován na řádku {max_info[0]}, datum: {max_info[3]}. {max_info[2]}. {max_info[1]}, průtok: {max}.")
-        print(f"Maximální průtok detekován na řádku {min_info[0]}, datum: {min_info[3]}. {min_info[2]}. {min_info[1]}, průtok: {min}.")
+        print(f"Maximální průtok detekován na řádku {max_info[0]}, datum: {max_info[3]}. {max_info[2]}. {max_info[1]}, průtok: {maximum}.")
+        print(f"Maximální průtok detekován na řádku {min_info[0]}, datum: {min_info[3]}. {min_info[2]}. {min_info[1]}, průtok: {minimum}.")
         
 def chybejicidny(vstupni_data):
     """Funkce vypíše dny chybějící v datech.
