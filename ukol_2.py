@@ -1,6 +1,7 @@
 import csv
 import datetime
 import calendar
+from typing import Iterator
 
 def odecetdni(d,m,r,presah):
     """Vrací datum ve formátu datetime, které nastalo před "presah" dnů od data "d.m.r".
@@ -50,7 +51,7 @@ def tydenniprumery(vstupni_data, vystup):
         for row in reader:
             i += 1                                                          #Počítá dny, při každém opakování se zvýší o 1
             if i % 7 == 1:                                                  #Je-li zbytek po i/7 roven 1, znamená to, že začal nový týden
-                radek_list = [row[0], row[1], row[2], row[3], row[4]]       #Uložím tedy do seznamu informace, které mají být vypsány o prvním dni sledovaného období
+                radek_list = row[0:5]                                       #Uložím tedy do seznamu informace, které mají být vypsány o prvním dni sledovaného období
             soucet += float(row[5])                                         #Při každém opakování přičtu průtok daného dne
             if i % 7 == 0:                                                  #Je li i dělitelné beze zbytku sedmi, jde o poslední den týdne
                 prumer_hotovy = platnecislice(soucet/7, 4)                  #Spočtu tedy průměr průtoků z sedm dní, který pomocí fce platnecislice upravím na 4 platné číslice
@@ -82,14 +83,14 @@ def rocniprumery(vstupni_data, vystup):
         soucet = 0
         for row in reader:
             if rok == 0:                                                    #Uloží informace o prvním roce do seznamu radek_list
-                radek_list = [row[0], row[1], row[2], row[3], row[4]]      
+                radek_list = row[0:5]      
             if rok != int(row[2]) and rok !=0:                              #Vždy když dojde ke změně roku, vypíše průměrný průtok spolu s informacemi o prvním dni období, podobně jako fce tydenniprumery
                 prumer_hotovy = platnecislice(soucet/i, 4)                  #Spočítá průměr a upraví ho do požadovaného formátu. Proměnná i uchovává počet sčítaných průtoků - dní v období.
                 radek_list.append(prumer_hotovy)                            #Přidá výsledný průměr do seznamu k informacím z prvního dne daného období
                 writer.writerow(radek_list)                                 #Vypíše všechny tyto informace jako řádek do výstupního souboru
                 soucet = 0                                                  #Vynuluje soucet, tak aby pro nový rok byl počítán znovu od nuly
                 i = 0                                                       #Vynuluje i, tedy proměnnou uchovávající počet sečtených průtoků v daném období
-                radek_list = [row[0], row[1], row[2], row[3], row[4]]       #Uloží informace o prvním dni nového roku
+                radek_list = row[0:5]                                       #Uloží informace o prvním dni nového roku
             i += 1                                                          #Počítá počet dní, respektive započítaných průtoků
             soucet += float(row[5])                                         #Sčítání průtoků
             rok = int(row[2])                                               #Ukládá do proměnné rok letopočet z daného řádku, tak aby mohl být v dalším opakování porovnán s novým letopočtem
@@ -119,14 +120,7 @@ def kontroladat(vstupni_data):
                     if int(row[3]) < 1 or int(row[3]) > 12: #Číslo měsíce nemůže být větší než 12 ani menší než 0
                         print(f"Chyba v datech, řádek {i}, neplatný měsíc.")
                         chyba = True
-                    if int(row[3]) == 1 or int(row[3]) == 3 or int(row[3]) == 5 or int(row[3]) == 7 or int(row[3]) == 8 or int(row[3]) == 10 or int(row[3]) == 12:      #Měsíce s délkou 31 dní
-                        delka = 31
-                    elif int(row[3]) == 2 and int(row[2]) % 4 == 0:      #Přestupné roky, únor má 29 dní. Existuje výjimka, ale poslední nastala v roce 1900 a další nastane až v roce 2100, nepředpokládám taková vstupní data. 
-                            delka = 29
-                    elif int(row[3]) == 2 and int(row[2]) % 4 != 0:      #Nepřestupné roky, únor má 28 dní
-                            delka = 28
-                    else:
-                        delka = 30              #Ostatní měsíce mají 30 dní
+                    denvtydnu, delka = calendar.monthrange(int(row[2]), int(row[3]))      #zjišťuji počet dní v měsíci
                     if int(row[4]) < 1 or int(row[4]) > delka:      # Číslo dne nemůže být menší než 0 ani větší něž počet dní v daném měsíci
                         print(f"Chyba v datech, řádek {i}, neplatný den.")
                         chyba = True
@@ -176,15 +170,19 @@ def maxminprutok(vstupni_data):
             i += 1
             if i == 1:
                 max = float(row[5])
-                max_info = [i, row[2], row[3], row[4]]
+                max_info = [i]
+                max_info.extend(row[2:5])
                 min = float(row[5])
-                min_info = [i, row[2], row[3], row[4]]
+                min_info = [i]
+                min_info.extend(row[2:5])
             if float(row[5]) > max:
                 max = float(row[5])
-                max_info = [i, row[2], row[3], row[4]]
+                max_info = [i]
+                max_info.extend(row[2:5])
             if float(row[5]) < min:
                 min = float(row[5])
-                min_info = [i, row[2], row[3], row[4]]
+                min_info = [i]
+                min_info.extend(row[2:5])
         
         print(f"Maximální průtok detekován na řádku {max_info[0]}, datum: {max_info[3]}. {max_info[2]}. {max_info[1]}, průtok: {max}.")
         print(f"Maximální průtok detekován na řádku {min_info[0]}, datum: {min_info[3]}. {min_info[2]}. {min_info[1]}, průtok: {min}.")

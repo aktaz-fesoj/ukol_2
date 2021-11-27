@@ -28,4 +28,4 @@ den prvního dne úseku (celé číslo), průměrný průtok úseku (desetinné 
 Vstupní data nemusejí začínat 1. lednem, v takovém případě je vypsán první sledovaný den a úsek končí koncem kalendářního roku.
 Naopak poslední data mohou být zaznamenána v průběhu roku, tehdy bude vypočet proveden na daném vzorku.
 
-Pokud program úspěšně proběhne, informuje o tom uživatele. Soubory vystup_7.csv a vystup_rok.csv jsou uloženy ve stejné složce jako vstupní csv soubor.
+Pokud program úspěšně proběhne, informuje o tom uživatele. Soubory vystup_7dni.csv a vystup_rok.csv jsou uloženy ve stejné složce jako vstupní csv soubor.
